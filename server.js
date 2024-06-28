@@ -5,8 +5,9 @@ const app = express(); //extence of the express
 
 const db = require('./db');
 
+require('dotenv').config();
 
-
+const PORT = process.env.PORT || 3000;
 
 
 const bodyParser = require('body-parser')
@@ -49,6 +50,8 @@ app.get('/greet', (req, res) => {
     res.send("Thanks for your greet")
 })
 
-app.listen(3000, () => {
+
+
+app.listen(PORT, () => {
     console.log("server is listening on port 3000")
 })
