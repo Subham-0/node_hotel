@@ -3,52 +3,39 @@ const app = express(); //extence of the express
 //it has all the fuctionality by that we can make a server
 //we can change the app as anything but per the industry related we should name as app
 
+const passport = require('./auth')
+
 const db = require('./db');
 
 require('dotenv').config();
 
 const PORT = process.env.PORT || 3000;
 
-
 const bodyParser = require('body-parser')
-const { error } = require('console')
 app.use(bodyParser.json()); //store all the objects in req.body
 
-//Import the person route file
-const personRoutes = require('./routes/PersonRoutes');
-//use the personRoutes
-app.use('/person', personRoutes)
+//Middleware Function
+const LogRequest = (req, res, next) => {
+    console.log(`[${new Date().toLocaleString()}] Request Made to : ${req.originalUrl}`);
+    next(); //Move on to the next phase
+}
+app.use(LogRequest); //apply middleware to all routes
 
-
-//Import the menu route file
-const menuRoutes = require('./routes/menuRoutes');
-//use the menuRoutes
-app.use('/menu', menuRoutes)
-
-
+app.use(passport.initialize())
+const localAuthMiddleware = passport.authenticate('local', { session: false });
 
 app.get('/', function (req, res) {
     res.send('Welcome to backend.. Hello Subham ')
 })
 
-app.get('/pakhala', (req, res) => {
-    var pakhala_dish = {
-        "pakhala": "250gm",
-        "alubharta": "10gm",
-        "price": 50,
-        "isfull": true
+//Import the  route files
+const personRoutes = require('./routes/PersonRoutes');
+const menuRoutes = require('./routes/menuRoutes');
 
-    }
-    res.send(pakhala_dish)
-})
+//use the Routes
+app.use('/person', personRoutes)
+app.use('/menu', localAuthMiddleware, menuRoutes)
 
-app.post('/items', (req, res) => {
-    res.send('data is saved')
-})
-
-app.get('/greet', (req, res) => {
-    res.send("Thanks for your greet")
-})
 
 
 
